@@ -1,0 +1,85 @@
+---
+title: "Cytopenia_VennDiagram"
+author: "Usman"
+date: "2023-11-02"
+output: 
+  html_document: 
+    toc: yes
+    number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Prevalence of Cytopenia in Niave HIV-1 Infected Patients Initiating First-Line ART: A pilot study**
+
+
+## **Introduction**
+Cytopenias are common hematological manifestations in Human Immunodeficiency
+Virus (HIV) infection, serving as predictors of disease progression and therapeutic
+outcomes. This study aimed to determine the prevalence of cytopenias and their
+association with immunosuppression in treatment-naive HIV-infected participants
+undergoing highly active combined Antiretroviral Drug Therapy (cART24). A
+prospective study was conducted with 44 HIV-infected individuals initiating cART,
+assessing cytopenias including anemia, leucopenia, lymphocytopenia, and
+thrombocytopenia, following WHO guidelines. The study employed cross-sectional and
+longitudinal mixed-design two-step analysis. The median time to cART initiation was 7
+days. Prevalence of cytopenia was 75% at pre-treatment baseline and 84% following
+cART24. Longitudinally, anemia, leucopenia, lymphopenia, and thrombocytopenia
+prevalences were 66%, 23%, 0%, and 11% at baseline, and 66%, 29%, 5%, and 20%
+post-cART24, respectively. Cytopenia prevalence increased with decreasing CD4+ T
+cell counts. Unicytopenia included isolated anemia (58%), leucopenia (6%), and
+thrombocytopenia (6%), while 27% had bi-cytopenia and 3% pancytopenia. Anemia
+and thrombocytopenia combination was most frequent. The study revealed a lack of
+strong correlation between cytopenias and disease progression based on CD4+ T cell
+counts. Additionally, participants with CD4+ T cell counts <200 cells/μl exhibited
+decreased hemoglobin concentration following cART24. Notably, prevalence of anemia
+was high in cART-naive patients, and leucopenia and neutropenia were elevated in
+patients on cART, intensifying as CD4+ T cell counts decreased. These findings
+emphasize the intricate hematological consequences of HIV and antiretroviral therapy,
+underscoring the need for tailored preventive strategies.
+
+
+
+```{r Cytopenia}
+library(readxl)
+Cyto_Prev <- read_excel("C:/Users/Usman Ola/Downloads/ERIOLUWa MAIN DATA.xlsx", 
+                        sheet = "Data")
+head(Cyto_Prev)
+library(tidyverse)
+library(ggVennDiagram)
+
+Cyto_Prev1<- Cyto_Prev[,c(27,29,31,35)]
+Cyto_Prev1
+names(Cyto_Prev1)<-c("WBC","LYMP","PLAT","HGB")
+
+
+Venn_Cyto<-Cyto_Prev1%>%mutate(size=WBC < 4,Plat= PLAT < 150,anem=HGB < 12)%>%
+  select(anem,Plat,size)%>%
+  rename(Anemia=anem,Thrombocytopenia=Plat,Leucopia=size)
+Venn_Cyto
+```
+
+## **Plots**
+
+### **Prevalenc of Cytopenia Relative to Multitude of Penia**
+
+```{r Plots}
+ggVennDiagram(lapply(Venn_Cyto, function(x)which(x==1)),
+  category.names = c("A","L","T") )+
+   scale_fill_gradient(low = "white",high = "white")+
+    theme(legend.position = "none",plot.tag.position="bottomleft")
+
+ggVennDiagram(lapply(Venn_Cyto, function(x)which(x==1)),
+ category.names = c("Anemia","Leucopenia","Thrombocytopenia"),
+  label_txtWidth = 100, set_size=4.4)+
+   scale_fill_gradient(low = "white",high = "white")+
+    theme(legend.position  = "bottom",plot.tag.position="bottomleft")+
+     scale_x_continuous(expand = expansion(mult = .1))+
+      theme(legend.position = "none",plot.tag.position="bottomleft")
+
+```
+
+**Figure 1** Distribution of cytopenias relative to its prevalence among treatment naïve HIV infeceted study participants at baseline and at
+cART24. A : represent treatment naïve HIV infected participants while B: represent 24 weeks of weeks of cART24
